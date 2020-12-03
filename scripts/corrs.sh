@@ -12,9 +12,9 @@ source activate picca
 export PYTHONPATH=/global/homes/o/olegbg/picca/py:$PYTHONPATH
 export PATH=/global/homes/o/olegbg/picca/bin:$PATH
 
-picca_cf.py --in-dir Delta_lya/deltas_nonoise/ --out correlations/cf_nonoise.fits.gz
+picca_cf.py --in-dir Delta_lya/deltas/ --out correlations/cf.fits.gz
 
-picca_export.py --data correlations/cf_nonoise.fits.gz --out correlations/e_cf_nonoise.fits.gz
+picca_export.py --data correlations/cf.fits.gz --out correlations/e_cf.fits.gz
 
 wait
 echo "END"
