@@ -1,4 +1,5 @@
 #!/bin/bash -l
+## Originally taken from https://github.com/desihub/desisim/blob/master/etc/quickquasar_slurm_script.sh
 
 #SBATCH -C haswell
 #SBATCH --partition=debug
@@ -11,20 +12,21 @@
 # HOWTO:
 # 1) copy this script
 # 2) choose your options to quickquasars (z range, downsampling, target selection, DESI footprint) in the command below
-# 3) change idir outdir downsampling output nodes nthreads time
+# 3) change idir/outdir, output, nodes, nthreads, time
 # 4) verify nodes=XX below is same as --nodes=XX above
 # 5) sbatch yourjob.sh
 #
-# example: v1.1.0
-# the QSO density (z>2.1) = 52.4 /deg2 , so I set downsampling=1,
-# it's only one chunk , almost fully contained in DESI footprint
+# example:
+# for the Dec 20 tutorial set downsampling=0.1 to get ~200K quasars. 
+# To get a  QSO density (z>2.1) ~ 50/deg2, using London mocks, set downsampling=0.4,
 
-source /project/projectdirs/desi/software/desi_environment.sh
+source /project/projectdirs/desi/software/desi_environment.sh master
+
 
 seed=123
-downsampling=0.2
+downsampling=0.1
 idir=/global/cfs/projectdirs/desi/mocks/lya_forest/london/v9.0/v9.0.0
-outdir=/global/cfs/projectdirs/desi/users/olegbg/quickquasar/tutorial/all_pixels/nonoise/
+outdir=$SCRATCH/mocks/quickquasar/tutorial-0.3-4/
 nodes=40 # CHECK MATCHING #SBATCH --nodes ABOVE !!!!
 nthreads=4 # TO BE TUNED ; CAN HIT NODE MEMORY LIMIT ; 4 is max on edison for nside=16 and ~50 QSOs/deg2
 
@@ -61,7 +63,7 @@ for node in `seq $nodes` ; do
     tfiles=`echo $files | cut -d " " -f ${first}-${last}`
     first=$(( first + nfilespernode ))
     last=$(( last + nfilespernode ))
-    command="srun -N 1 -n 1 -c $nthreads  quickquasars --exptime 4000. -i $tfiles --zmin 1.8 --nproc $nthreads --outdir $outdir/spectra-16 --downsampling $downsampling --zbest --bbflux --desi-footprint --seed $seed"
+    command="srun -N 1 -n 1 -c $nthreads  quickquasars --exptime 4000. -i $tfiles --zmin 1.8 --nproc $nthreads --outdir $outdir/spectra-16 --downsampling $downsampling --zbest --bbflux --desi-footprint --metals-from-file --balprob 0.16 --dla file --add-LYB --seed $seed"
     echo $command
     echo "log in $outdir/logs/node-$node.log"
 
